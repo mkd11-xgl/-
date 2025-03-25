@@ -32,11 +32,11 @@
         }
 
         .form-group label {
-            width: 20%;
+            width: 15%;
         }
 
         .form-group input {
-            width: 45%;
+            width: 20%;
             padding: 8px;
             margin: 4px 0;
             border: 1px solid #ddd;
@@ -44,7 +44,7 @@
         }
 
         .form-group .ingredient-name {
-            width: 25%;
+            width: 15%;
         }
 
         .result {
@@ -81,79 +81,70 @@
 
     <div class="container">
         <h1>配方核算</h1>
-        <form id="formulaForm">
-            <!-- 15个原材料栏位 -->
-            <div id="ingredients"></div>
-            <!-- 结果展示 -->
-            <div class="result">
-                <div class="output" id="percentageOutput"></div>
+        
+        <div class="form-group">
+            <label for="ingredient1">原材料 1</label>
+            <input type="text" id="ingredient1" class="ingredient-name" placeholder="输入原材料名称">
+            <input type="number" id="percentage1" placeholder="输入百分比">
+            <input type="number" id="quantity1" placeholder="投放数量" readonly>
+        </div>
+        
+        <div class="form-group">
+            <label for="ingredient2">原材料 2</label>
+            <input type="text" id="ingredient2" class="ingredient-name" placeholder="输入原材料名称">
+            <input type="number" id="percentage2" placeholder="输入百分比">
+            <input type="number" id="quantity2" placeholder="投放数量" readonly>
+        </div>
+
+        <!-- 这里可以继续增加原材料栏位，最多到 15 格 -->
+        
+        <div class="form-group">
+            <label for="totalAmount">大货总量 (公斤)</label>
+            <input type="number" id="totalAmount" placeholder="输入大货总量">
+        </div>
+
+        <div class="button">
+            <button onclick="calculateQuantities()">计算</button>
+        </div>
+
+        <div class="result">
+            <h2>计算结果</h2>
+            <div class="output">
+                <p id="result1"></p>
+                <p id="result2"></p>
+                <!-- 这里会显示计算结果 -->
             </div>
-            <div class="button">
-                <button type="button" onclick="calculate()">计算大货需要投放的原材料</button>
-            </div>
-        </form>
+        </div>
     </div>
 
     <script>
-        const numIngredients = 15; // 15个原材料
-        const ingredientsContainer = document.getElementById('ingredients');
-        
-        // 动态生成15个原材料输入框
-        for (let i = 1; i <= numIngredients; i++) {
-            const div = document.createElement('div');
-            div.classList.add('form-group');
-            div.innerHTML = `
-                <label for="ingredient${i}">原材料${i} (kg):</label>
-                <input type="number" id="ingredient${i}" name="ingredient${i}" placeholder="请输入用量" oninput="updatePercentage()">
-                <input type="text" class="ingredient-name" id="ingredientName${i}" placeholder="请输入原材料名称" oninput="updatePercentage()">
-                <span id="percentage${i}">0%</span>
-                <span id="amount${i}">0kg</span>
-            `;
-            ingredientsContainer.appendChild(div);
-        }
-
-        // 更新百分比和大货用量
-        function updatePercentage() {
-            let total = 0;
-            // 计算总用量
-            for (let i = 1; i <= numIngredients; i++) {
-                const input = document.getElementById(`ingredient${i}`);
-                total += parseFloat(input.value) || 0;
-            }
-
-            // 计算并更新百分比和数量
-            for (let i = 1; i <= numIngredients; i++) {
-                const input = document.getElementById(`ingredient${i}`);
-                const nameInput = document.getElementById(`ingredientName${i}`);
-                const percentageSpan = document.getElementById(`percentage${i}`);
-                const amountSpan = document.getElementById(`amount${i}`);
-                const value = parseFloat(input.value) || 0;
-                const percentage = total > 0 ? ((value / total) * 100).toFixed(2) : 0;
-                const amount = total > 0 ? ((value / total) * 100).toFixed(2) : 0;
-
-                percentageSpan.textContent = `${percentage}%`;
-                amountSpan.textContent = `${amount}kg`;
-                nameInput.value = nameInput.value || `原材料${i}`;
-            }
-        }
-
-        // 计算大货需要的原材料数量
-        function calculate() {
-            let totalWeight = prompt("请输入大货的公斤数:");
-            if (isNaN(totalWeight) || totalWeight <= 0) {
-                alert("请输入有效的公斤数");
+        function calculateQuantities() {
+            let totalAmount = document.getElementById("totalAmount").value;
+            
+            if (!totalAmount) {
+                alert("请输入大货总量！");
                 return;
             }
 
-            let resultText = '';
-            for (let i = 1; i <= numIngredients; i++) {
-                const name = document.getElementById(`ingredientName${i}`).value || `原材料${i}`;
-                const percentage = document.getElementById(`percentage${i}`).textContent.replace('%', '');
-                const amount = ((parseFloat(percentage) / 100) * totalWeight).toFixed(2);
-                resultText += `${name}: ${amount} kg\n`;
+            for (let i = 1; i <= 2; i++) {
+                let percentage = parseFloat(document.getElementById("percentage" + i).value);
+                if (percentage && totalAmount) {
+                    let quantity = (percentage / 100) * totalAmount;
+                    document.getElementById("quantity" + i).value = quantity.toFixed(2); // 显示计算后的投放数量
+                }
             }
 
-            document.getElementById('percentageOutput').textContent = resultText;
+            // 如果有更多原材料，继续计算并显示
+
+            let output = "";
+            for (let i = 1; i <= 2; i++) {
+                let ingredientName = document.getElementById("ingredient" + i).value;
+                let quantity = document.getElementById("quantity" + i).value;
+                output += ingredientName + " 投放数量: " + quantity + "公斤<br>";
+            }
+
+            // 显示结果
+            document.getElementById("result1").innerHTML = output;
         }
     </script>
 
