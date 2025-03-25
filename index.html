@@ -3,150 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>配方核算</title>
+    <title>投料配方计算</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-
-        .container {
-            width: 80%;
-            margin: 20px auto;
-            background-color: #fff;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: #f4f4f9;
         }
-
-        h1 {
-            text-align: center;
-        }
-
-        .form-group {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }
-
-        .form-group label {
-            width: 15%;
-        }
-
-        .form-group input {
-            width: 20%;
-            padding: 8px;
-            margin: 4px 0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        .form-group .ingredient-name {
-            width: 15%;
-        }
-
-        .result {
+        table {
+            width: 100%;
             margin-top: 20px;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
             text-align: center;
+            border: 1px solid #ccc;
         }
-
-        .result .output {
-            margin-top: 10px;
+        th {
+            background-color: #f2f2f2;
         }
-
-        .button {
-            text-align: center;
-            margin-top: 20px;
+        input[type="number"] {
+            width: 80%;
+            padding: 5px;
+            margin: 5px;
         }
-
-        button {
+        .btn {
             padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
             background-color: #4CAF50;
             color: white;
             border: none;
-            border-radius: 4px;
-            transition: background-color 0.3s;
+            cursor: pointer;
         }
-
-        button:hover {
+        .btn:hover {
             background-color: #45a049;
         }
     </style>
 </head>
 <body>
+    <h1>投料配方计算</h1>
 
-    <div class="container">
-        <h1>配方核算</h1>
-        
-        <div class="form-group">
-            <label for="ingredient1">原材料 1</label>
-            <input type="text" id="ingredient1" class="ingredient-name" placeholder="输入原材料名称">
-            <input type="number" id="percentage1" placeholder="输入百分比">
-            <input type="number" id="quantity1" placeholder="投放数量" readonly>
-        </div>
-        
-        <div class="form-group">
-            <label for="ingredient2">原材料 2</label>
-            <input type="text" id="ingredient2" class="ingredient-name" placeholder="输入原材料名称">
-            <input type="number" id="percentage2" placeholder="输入百分比">
-            <input type="number" id="quantity2" placeholder="投放数量" readonly>
-        </div>
-
-        <!-- 这里可以继续增加原材料栏位，最多到 15 格 -->
-        
-        <div class="form-group">
-            <label for="totalAmount">大货总量 (公斤)</label>
-            <input type="number" id="totalAmount" placeholder="输入大货总量">
-        </div>
-
-        <div class="button">
-            <button onclick="calculateQuantities()">计算</button>
-        </div>
-
-        <div class="result">
-            <h2>计算结果</h2>
-            <div class="output">
-                <p id="result1"></p>
-                <p id="result2"></p>
-                <!-- 这里会显示计算结果 -->
-            </div>
-        </div>
+    <!-- 大货投放数量和计算按钮 -->
+    <div style="margin-bottom: 20px;">
+        <label for="totalQuantity">大货投放数量 (kg): </label>
+        <input type="number" id="totalQuantity" placeholder="输入大货投放数量" />
+        <button class="btn" onclick="calculate()">计算</button>
     </div>
 
+    <!-- 配方表格 -->
+    <table id="formulaTable">
+        <thead>
+            <tr>
+                <th>原材料名称</th>
+                <th>原始投料数量 (kg)</th>
+                <th>百分比 (%)</th>
+                <th>大货投放数量 (kg)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- 行数可以动态增加至15行 -->
+            <tr>
+                <td><input type="text" placeholder="原材料名称" /></td>
+                <td><input type="number" class="inputWeight" placeholder="原始投料数量" oninput="updatePercentage()" /></td>
+                <td><input type="text" class="percentage" placeholder="百分比" disabled /></td>
+                <td><input type="text" class="totalAmount" placeholder="大货投放数量" disabled /></td>
+            </tr>
+            <!-- 添加其他14行 -->
+            <tr>
+                <td><input type="text" placeholder="原材料名称" /></td>
+                <td><input type="number" class="inputWeight" placeholder="原始投料数量" oninput="updatePercentage()" /></td>
+                <td><input type="text" class="percentage" placeholder="百分比" disabled /></td>
+                <td><input type="text" class="totalAmount" placeholder="大货投放数量" disabled /></td>
+            </tr>
+            <!-- 重复其他行直到15行 -->
+        </tbody>
+    </table>
+
     <script>
-        function calculateQuantities() {
-            let totalAmount = document.getElementById("totalAmount").value;
-            
-            if (!totalAmount) {
-                alert("请输入大货总量！");
-                return;
-            }
+        // 更新百分比
+        function updatePercentage() {
+            let totalWeight = 0;
+            // 计算原料总数量
+            document.querySelectorAll('.inputWeight').forEach(input => {
+                totalWeight += parseFloat(input.value) || 0;
+            });
 
-            for (let i = 1; i <= 2; i++) {
-                let percentage = parseFloat(document.getElementById("percentage" + i).value);
-                if (percentage && totalAmount) {
-                    let quantity = (percentage / 100) * totalAmount;
-                    document.getElementById("quantity" + i).value = quantity.toFixed(2); // 显示计算后的投放数量
-                }
-            }
+            // 更新百分比
+            document.querySelectorAll('.inputWeight').forEach((input, index) => {
+                const percentageInput = document.querySelectorAll('.percentage')[index];
+                const weight = parseFloat(input.value) || 0;
+                const percentage = (weight / totalWeight * 100) || 0;
+                percentageInput.value = percentage.toFixed(2) + "%";
+            });
+        }
 
-            // 如果有更多原材料，继续计算并显示
+        // 计算大货投放数量
+        function calculate() {
+            const totalQuantity = parseFloat(document.getElementById('totalQuantity').value) || 0;
 
-            let output = "";
-            for (let i = 1; i <= 2; i++) {
-                let ingredientName = document.getElementById("ingredient" + i).value;
-                let quantity = document.getElementById("quantity" + i).value;
-                output += ingredientName + " 投放数量: " + quantity + "公斤<br>";
-            }
-
-            // 显示结果
-            document.getElementById("result1").innerHTML = output;
+            document.querySelectorAll('.percentage').forEach((percentageInput, index) => {
+                const percentage = parseFloat(percentageInput.value.replace('%', '')) || 0;
+                const totalAmountInput = document.querySelectorAll('.totalAmount')[index];
+                const totalAmount = (percentage / 100) * totalQuantity;
+                totalAmountInput.value = totalAmount.toFixed(2) + " kg";
+            });
         }
     </script>
-
 </body>
 </html>
