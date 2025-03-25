@@ -146,4 +146,24 @@
                 <td><input type="text" class="totalAmount" placeholder="大货投放数量" disabled /></td>
             </tr>
             <tr>
-                <td><input type="text" placeholder
+                <td><input type="text" placeholder="原材料名称" /></td>
+                <td><input type="number" class="inputWeight" placeholder="原始投料数量" oninput="updatePercentage()" /></td>
+                <td><input type="text" class="percentage" placeholder="百分比" disabled /></td>
+                <td><input type="text" class="totalAmount" placeholder="大货投放数量" disabled /></td>
+            </tr>
+            <tr>
+                <td><input type="text" placeholder="原材料名称" /></td>
+                <td><input type="number" class="inputWeight" placeholder="原始投料数量" oninput="updatePercentage()" /></td>
+                <td><input type="text" class="percentage" placeholder="百分比" disabled /></td>
+                <td><input type="text" class="totalAmount" placeholder="大货投放数量" disabled /></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        // 更新百分比
+        function updatePercentage() {
+            let totalWeight = 0;
+            // 计算原料总数量
+            document.querySelectorAll('.inputWeight').forEach(input => {
+                total
