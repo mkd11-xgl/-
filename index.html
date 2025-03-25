@@ -32,15 +32,19 @@
         }
 
         .form-group label {
-            width: 25%;
+            width: 20%;
         }
 
         .form-group input {
-            width: 70%;
+            width: 45%;
             padding: 8px;
             margin: 4px 0;
             border: 1px solid #ddd;
             border-radius: 4px;
+        }
+
+        .form-group .ingredient-name {
+            width: 25%;
         }
 
         .result {
@@ -83,7 +87,6 @@
             <!-- 结果展示 -->
             <div class="result">
                 <div class="output" id="percentageOutput"></div>
-                <div class="output" id="amountOutput"></div>
             </div>
             <div class="button">
                 <button type="button" onclick="calculate()">计算大货需要投放的原材料</button>
@@ -101,8 +104,10 @@
             div.classList.add('form-group');
             div.innerHTML = `
                 <label for="ingredient${i}">原材料${i} (kg):</label>
-                <input type="number" id="ingredient${i}" name="ingredient${i}" placeholder="请输入原材料${i}的用量" oninput="updatePercentage()">
+                <input type="number" id="ingredient${i}" name="ingredient${i}" placeholder="请输入用量" oninput="updatePercentage()">
+                <input type="text" class="ingredient-name" id="ingredientName${i}" placeholder="请输入原材料名称" oninput="updatePercentage()">
                 <span id="percentage${i}">0%</span>
+                <span id="amount${i}">0kg</span>
             `;
             ingredientsContainer.appendChild(div);
         }
@@ -116,13 +121,19 @@
                 total += parseFloat(input.value) || 0;
             }
 
-            // 计算并更新百分比
+            // 计算并更新百分比和数量
             for (let i = 1; i <= numIngredients; i++) {
                 const input = document.getElementById(`ingredient${i}`);
+                const nameInput = document.getElementById(`ingredientName${i}`);
                 const percentageSpan = document.getElementById(`percentage${i}`);
+                const amountSpan = document.getElementById(`amount${i}`);
                 const value = parseFloat(input.value) || 0;
                 const percentage = total > 0 ? ((value / total) * 100).toFixed(2) : 0;
+                const amount = total > 0 ? ((value / total) * 100).toFixed(2) : 0;
+
                 percentageSpan.textContent = `${percentage}%`;
+                amountSpan.textContent = `${amount}kg`;
+                nameInput.value = nameInput.value || `原材料${i}`;
             }
         }
 
@@ -134,14 +145,15 @@
                 return;
             }
 
-            let resultText = '大货需要投放的原材料数量：\n';
+            let resultText = '';
             for (let i = 1; i <= numIngredients; i++) {
+                const name = document.getElementById(`ingredientName${i}`).value || `原材料${i}`;
                 const percentage = document.getElementById(`percentage${i}`).textContent.replace('%', '');
                 const amount = ((parseFloat(percentage) / 100) * totalWeight).toFixed(2);
-                resultText += `原材料${i}: ${amount} kg\n`;
+                resultText += `${name}: ${amount} kg\n`;
             }
 
-            document.getElementById('amountOutput').textContent = resultText;
+            document.getElementById('percentageOutput').textContent = resultText;
         }
     </script>
 
